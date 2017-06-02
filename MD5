@@ -1,0 +1,7 @@
+28810a65ea98163915d2c624eadd4ee5 *DESCRIPTION
+12901f145d5a1812842d6c698f4db290 *NAMESPACE
+d93171a5ec5eda1cfd0cad75babf6edb *R/ConfoundedMeta.R
+201d0a2b09bb44d9de4fe4030924d517 *man/confounded_meta.Rd
+fbb6aad6d2352f6dc6ddd3590fd49e43 *man/scrape_meta.Rd
+90b5cc7316e50175333f271710d612fc *man/sens_plot.Rd
+c9df0ded1bdabbd2634dcb32426a403b *man/sens_table.Rd
