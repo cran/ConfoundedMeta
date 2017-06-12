@@ -6,7 +6,7 @@
 #' \code{.q} for an apparently preventive \code{.yr}) as a function of the bias parameters;
 #' (2) the minimum bias factor on the relative risk scale (\code{Tmin}) required to reduce to
 #' less than \code{.r} the proportion of studies with true effect sizes more extreme than
-#' \code{.q}; (3) the counterpart to (2) in which bias is parameterized as the minimum
+#' \code{.q}; and (3) the counterpart to (2) in which bias is parameterized as the minimum
 #' relative risk for both confounding associations (\code{Gmin}).
 #' @param .q True effect size that is the threshold for "scientific significance"
 #' @param .r For \code{Tmin} and \code{Gmin}, value to which the proportion of large effect sizes is to be reduced
@@ -308,7 +308,7 @@ sens_table = function( .meas, .q, .r=seq(0.1, 0.9, 0.1), .muB=NULL, .sigB=NULL,
 #' The plot secondarily includes a X-axis scaled based on the minimum strength of confounding
 #' to produce the given bias factor. The shaded region represents a 95\% pointwise confidence band.
 #' Alternatively, produces distribution plots (\code{.type=="dist"}) for a specific bias factor showing the observed and 
-#' true distributions of RRs with a red line marking the exp(\code{.q}).
+#' true distributions of RRs with a red line marking exp(\code{.q}).
 #' @param .type \code{dist} for distribution plot; \code{line} for line plot (see Details)
 #' @param .q True effect size that is the threshold for "scientific significance"
 #' @param .muB Single mean bias factor on log scale (only needed for distribution plot)
@@ -341,10 +341,15 @@ sens_table = function( .meas, .q, .r=seq(0.1, 0.9, 0.1), .muB=NULL, .sigB=NULL,
 #' sens_plot( .type="line", .q=log(0.90), .Bmin=log(1), .Bmax=log(4),
 #'            .yr=log(0.6), .vyr=0.005, .t2=0.4, .vt2=0.04 )
 #' 
-#' # distribution plot
-#' sens_plot( .type="dist", .q=log(1.1), .muB=log(2),
-#'            .yr=log(1.3), .t2=0.4 )
-
+#' # distribution plot: apparently causative
+#' # commented out because takes 5-10 seconds to run
+#' # sens_plot( .type="dist", .q=log(1.1), .muB=log(2),
+#' #           .yr=log(1.3), .t2=0.4 )
+#'            
+#' # distribution plot: apparently preventive
+#' # commented out because takes 5-10 seconds to run
+#' # sens_plot( .type="dist", .q=log(0.90), .muB=log(1.5),
+#' #           .yr=log(0.7), .t2=0.2 )
 
 
 sens_plot = function( .type, .q, .muB=NULL, .Bmin=log(1), .Bmax=log(5), .sigB=0,
@@ -377,7 +382,8 @@ sens_plot = function( .type, .q, .muB=NULL, .Bmin=log(1), .Bmax=log(5), .sigB=0,
     RR.c = exp( rnorm( n=reps, mean=.yr, sd=sqrt(.t2) ) )
     
     # simulate unconfounded distribution
-    RR.t = exp( rnorm( n=reps, mean=.yr-.muB, sd=sqrt(.t2-.sigB^2) ) )
+    Mt = ifelse( .yr > 0, .yr - .muB, .yr + .muB )
+    RR.t = exp( rnorm( n=reps, mean=Mt, sd=sqrt(.t2-.sigB^2) ) )
     
     # get reasonable limits for X-axis
     x.min = min( quantile(RR.c, 0.01), quantile(RR.t, 0.01) )
@@ -442,28 +448,34 @@ sens_plot = function( .type, .q, .muB=NULL, .Bmin=log(1), .Bmax=log(5), .sigB=0,
 
 
 
-# ~~~~~ weird example to show TVW
-# reducing vt2 improves it
-# sens_plot( .type="line", .q=log(0.90), .Bmin=log(1), .Bmax=log(4),
-#            .yr=log(0.6), .vyr=0.005, .t2=0.4, .vt2=0.5 )
-
-
-
-
-
 #' Convert forest plot or summary table to meta-analytic dataset
 #'
 #' Given relative risks (RR) and upper bounds of 95\% confidence intervals (CI)
 #' from a forest plot or summary table, returns a dataframe ready for meta-analysis
 #' (e.g., via the \code{metafor} package) with the log-RRs and their variances.
-#' @param .RR Vector of study point estimates on RR scale
+#' Optionally, the user may indicate studies for which the point estimate is to be
+#' interpreted as an odds ratios of a common outcome rather than relative risks;
+#' for such studies, the function applies VanderWeele (2017)'s square-root transformation to convert
+#' the odds ratio to an approximate risk ratio. 
+#' @param .est Vector of study point estimates on RR or OR scale
 #' @param .hi Vector of upper bounds of 95\% CIs on RRs
+#' @param .sqrt Vector of booleans (TRUE/FALSE) for whether each study measured an odds ratio of a common outcome that should be approximated as a risk ratio via the square-root transformation
 #' @export
 #' @import stats
 
-scrape_meta = function( .RR, .hi ){
-  sei = ( log(.hi) - log(.RR) ) / qnorm(.975)
-  return( data.frame( yi = log(.RR), vyi = sei^2 ) )
+scrape_meta = function( .est, .hi, .sqrt=FALSE ){
+  
+  # take square root for certain elements
+  RR = .est
+  RR[.sqrt] = sqrt( RR[.sqrt] )
+  
+  # same for upper CI limit
+  hi.RR = .hi
+  hi.RR[.sqrt] = sqrt( hi.RR[.sqrt] )
+  
+  sei = ( log(hi.RR) - log(RR) ) / qnorm(.975)
+  
+  return( data.frame( yi = log(RR), vyi = sei^2 ) )
 }
 
 

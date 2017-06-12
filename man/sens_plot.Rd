@@ -41,7 +41,7 @@ of studies with true RRs above \code{.q} (or below it for an apparently preventi
 The plot secondarily includes a X-axis scaled based on the minimum strength of confounding
 to produce the given bias factor. The shaded region represents a 95\% pointwise confidence band.
 Alternatively, produces distribution plots (\code{.type=="dist"}) for a specific bias factor showing the observed and 
-true distributions of RRs with a red line marking the exp(\code{.q}).
+true distributions of RRs with a red line marking exp(\code{.q}).
 }
 \details{
 Arguments \code{.vyr} and \code{.vt2} can be left \code{NULL}, in which case no confidence
@@ -60,9 +60,15 @@ sens_plot( .type="line", .q=log(1.1), .Bmin=log(1), .Bmax=log(4),
 sens_plot( .type="line", .q=log(0.90), .Bmin=log(1), .Bmax=log(4),
            .yr=log(0.6), .vyr=0.005, .t2=0.4, .vt2=0.04 )
 
-# distribution plot
-sens_plot( .type="dist", .q=log(1.1), .muB=log(2),
-           .yr=log(1.3), .t2=0.4 )
+# distribution plot: apparently causative
+# commented out because takes 5-10 seconds to run
+# sens_plot( .type="dist", .q=log(1.1), .muB=log(2),
+#           .yr=log(1.3), .t2=0.4 )
+           
+# distribution plot: apparently preventive
+# commented out because takes 5-10 seconds to run
+# sens_plot( .type="dist", .q=log(0.90), .muB=log(1.5),
+#           .yr=log(0.7), .t2=0.2 )
 }
 \keyword{confounding,}
 \keyword{meta-analysis,}

@@ -1,7 +1,7 @@
 Package: ConfoundedMeta
 Type: Package
 Title: Sensitivity Analyses for Unmeasured Confounding in Meta-Analyses
-Version: 1.0.0
+Version: 1.1.0
 Date: 2017-05-31
 Author: Maya B. Mathur, Tyler J. VanderWeele
 Maintainer: Maya B. Mathur <maya.z.mathur@gmail.com>
@@ -13,11 +13,13 @@ Description: Conducts sensitivity analyses for unmeasured confounding in
     of scientific significance; and (2) the minimum bias factor and confounding
     strength required to reduce to less than a specified threshold the proportion
     of studies with true effect sizes of scientifically significant size.
-    Creates plots and tables for visualizing these metrics across a range of bias values. 
+    Creates plots and tables for visualizing these metrics across a range of bias values.
+    Provides tools to easily scrape study-level data from a published forest plot or 
+    summary table to obtain the needed estimates when these are not reported.  
 License: GPL-2
 Imports: ggplot2 (>= 2.2.1), metafor, stats
 RoxygenNote: 6.0.1
 NeedsCompilation: no
-Packaged: 2017-06-01 22:57:12 UTC; mmathur
+Packaged: 2017-06-12 12:47:34 UTC; mmathur
 Repository: CRAN
-Date/Publication: 2017-06-02 17:25:03 UTC
+Date/Publication: 2017-06-12 16:01:16 UTC

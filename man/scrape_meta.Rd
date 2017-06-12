@@ -4,15 +4,21 @@
 \alias{scrape_meta}
 \title{Convert forest plot or summary table to meta-analytic dataset}
 \usage{
-scrape_meta(.RR, .hi)
+scrape_meta(.est, .hi, .sqrt = FALSE)
 }
 \arguments{
-\item{.RR}{Vector of study point estimates on RR scale}
+\item{.est}{Vector of study point estimates on RR or OR scale}
 
 \item{.hi}{Vector of upper bounds of 95\% CIs on RRs}
+
+\item{.sqrt}{Vector of booleans (TRUE/FALSE) for whether each study measured an odds ratio of a common outcome that should be approximated as a risk ratio via the square-root transformation}
 }
 \description{
 Given relative risks (RR) and upper bounds of 95\% confidence intervals (CI)
 from a forest plot or summary table, returns a dataframe ready for meta-analysis
 (e.g., via the \code{metafor} package) with the log-RRs and their variances.
+Optionally, the user may indicate studies for which the point estimate is to be
+interpreted as an odds ratios of a common outcome rather than relative risks;
+for such studies, the function applies VanderWeele (2017)'s square-root transformation to convert
+the odds ratio to an approximate risk ratio.
 }

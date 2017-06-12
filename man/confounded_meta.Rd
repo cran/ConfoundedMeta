@@ -32,7 +32,7 @@ for (1) \code{prop}, the proportion of studies with true effect sizes above \cod
 \code{.q} for an apparently preventive \code{.yr}) as a function of the bias parameters;
 (2) the minimum bias factor on the relative risk scale (\code{Tmin}) required to reduce to
 less than \code{.r} the proportion of studies with true effect sizes more extreme than
-\code{.q}; (3) the counterpart to (2) in which bias is parameterized as the minimum
+\code{.q}; and (3) the counterpart to (2) in which bias is parameterized as the minimum
 relative risk for both confounding associations (\code{Gmin}).
 }
 \details{
