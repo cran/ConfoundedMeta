@@ -378,7 +378,7 @@ sens_plot = function( .type, .q, .muB=NULL, .Bmin=log(1), .Bmax=log(5), .sigB=0,
   if ( .type=="dist" ) {
     
     # simulate confounded distribution
-    reps = 1000000
+    reps = 10000
     RR.c = exp( rnorm( n=reps, mean=.yr, sd=sqrt(.t2) ) )
     
     # simulate unconfounded distribution
@@ -423,12 +423,19 @@ sens_plot = function( .type, .q, .muB=NULL, .Bmin=log(1), .Bmax=log(5), .sigB=0,
 
     # compute values of g for the dual X-axis
     if ( is.null(breaks.x1) ) breaks.x1 = seq( exp(.Bmin), exp(.Bmax), .5 )
-    if ( is.null(breaks.x2) ) breaks.x2 = round( breaks.x1 + sqrt( breaks.x1^2 + breaks.x1 ), 2)
+    if ( is.null(breaks.x2) ) breaks.x2 = round( breaks.x1 + sqrt( breaks.x1^2 - breaks.x1 ), 2)
+    
+    # define transformation in a way that is monotonic over the effective range of B (>1)
+    # to avoid ggplot errors
+    g = Vectorize( function(x) {
+      if (x < 1) return( x / 1e10 )
+      x + sqrt( x^2 - x )
+    } )
     
     p = ggplot2::ggplot( t, aes(x=t$eB, y=t$phat ) ) + theme_bw() +
       scale_y_continuous( limits=c(0,1), breaks=seq(0, 1, .1)) +
       scale_x_continuous(  breaks = breaks.x1,
-                          sec.axis = sec_axis( ~ . + sqrt(.^2 + .),
+                          sec.axis = sec_axis( ~ g(.),  # confounding strength axis
                           name = "Minimum strength of both confounding RRs",
                           breaks=breaks.x2 ) ) +
       geom_line(lwd=1.2) +
@@ -454,7 +461,7 @@ sens_plot = function( .type, .q, .muB=NULL, .Bmin=log(1), .Bmax=log(5), .sigB=0,
 #' from a forest plot or summary table, returns a dataframe ready for meta-analysis
 #' (e.g., via the \code{metafor} package) with the log-RRs and their variances.
 #' Optionally, the user may indicate studies for which the point estimate is to be
-#' interpreted as an odds ratios of a common outcome rather than relative risks;
+#' interpreted as an odds ratios of a common outcome rather than a relative risk;
 #' for such studies, the function applies VanderWeele (2017)'s square-root transformation to convert
 #' the odds ratio to an approximate risk ratio. 
 #' @param .est Vector of study point estimates on RR or OR scale
