@@ -5,7 +5,7 @@
 \title{Estimates and inference for sensitivity analyses}
 \usage{
 confounded_meta(.q, .r = NULL, .muB = NULL, .sigB = 0, .yr, .vyr = NULL,
-  .t2, .vt2 = NULL, CI.level = 0.95)
+  .t2, .vt2 = NULL, CI.level = 0.95, .tail = NULL)
 }
 \arguments{
 \item{.q}{True effect size that is the threshold for "scientific significance"}
@@ -25,6 +25,10 @@ confounded_meta(.q, .r = NULL, .muB = NULL, .sigB = 0, .yr, .vyr = NULL,
 \item{.vt2}{Estimated variance of tau^2 from confounded meta-analysis}
 
 \item{CI.level}{Confidence level as a proportion}
+
+\item{.tail}{\code{above} for the proportion of effects above \code{.q}; \code{below} for
+the proportion of effects below \code{.q}. By default, is set to \code{above} for relative risks
+above 1 and to \code{below} for relative risks below 1.}
 }
 \description{
 Computes point estimates, standard errors, and confidence interval bounds

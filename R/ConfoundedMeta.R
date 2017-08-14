@@ -17,6 +17,9 @@
 #' @param .t2 Estimated heterogeneity (tau^2) from confounded meta-analysis
 #' @param .vt2 Estimated variance of tau^2 from confounded meta-analysis
 #' @param CI.level Confidence level as a proportion
+#' @param .tail \code{above} for the proportion of effects above \code{.q}; \code{below} for
+#' the proportion of effects below \code{.q}. By default, is set to \code{above} for relative risks
+#' above 1 and to \code{below} for relative risks below 1.
 #' @export
 #' @details
 #' To compute all three point estimates (\code{prop, Tmin, and Gmin}) and inference, all
@@ -54,8 +57,8 @@
 
 confounded_meta = function( .q, .r=NULL, .muB=NULL, .sigB=0,
                              .yr, .vyr=NULL, .t2, .vt2=NULL,
-                            CI.level=0.95 ) {
-
+                            CI.level=0.95, .tail=NULL ) {
+  
   # somewhere have option to plot the bias factor distribution, the confounded distribution, and the adjusted distribution
   
   ##### Check for Bad Input #####
@@ -64,7 +67,10 @@ confounded_meta = function( .q, .r=NULL, .muB=NULL, .sigB=0,
   if ( is.null(.r) ) warning("Cannot compute Tmin or Gmin without .r. Returning only prop.")
 
   ##### Point Estimates: Causative Case #####
-  if ( .yr > log(1) ) {
+  
+  if ( is.null(.tail) ) .tail = ifelse( .yr > log(1), "above", "below" )
+  
+  if ( .tail == "above" ) {
     
     if ( !is.null(.muB) ) {
       # prop above
@@ -86,10 +92,10 @@ confounded_meta = function( .q, .r=NULL, .muB=NULL, .sigB=0,
   }
   
   ##### Point Estimates: Preventive Case #####
-  else if ( .yr < log(1) ) {
+  else if ( .tail == "below" ) {
     
     if ( !is.null(.muB) ) {
-      # prop above
+      # prop below
       Z = ( .q - .muB - .yr ) / sqrt( .t2 - .sigB^2 )
       phat = pnorm(Z) 
     } else {
@@ -464,27 +470,69 @@ sens_plot = function( .type, .q, .muB=NULL, .Bmin=log(1), .Bmax=log(5), .sigB=0,
 #' interpreted as an odds ratios of a common outcome rather than a relative risk;
 #' for such studies, the function applies VanderWeele (2017)'s square-root transformation to convert
 #' the odds ratio to an approximate risk ratio. 
+#' @param .type \code{RR} if point estimates are RRs or ORs (to be handled on log scale); \code{raw} if point estimates are raw differences, standardized mean differences, etc. (such that they can be handled with no transformations)
 #' @param .est Vector of study point estimates on RR or OR scale
 #' @param .hi Vector of upper bounds of 95\% CIs on RRs
 #' @param .sqrt Vector of booleans (TRUE/FALSE) for whether each study measured an odds ratio of a common outcome that should be approximated as a risk ratio via the square-root transformation
 #' @export
 #' @import stats
 
-scrape_meta = function( .est, .hi, .sqrt=FALSE ){
+scrape_meta = function( .type="RR", .est, .hi, .sqrt=FALSE ){
   
-  # take square root for certain elements
-  RR = .est
-  RR[.sqrt] = sqrt( RR[.sqrt] )
+  if ( .type == "RR" ) {
+    # take square root for certain elements
+    RR = .est
+    RR[.sqrt] = sqrt( RR[.sqrt] )
+    
+    # same for upper CI limit
+    hi.RR = .hi
+    hi.RR[.sqrt] = sqrt( hi.RR[.sqrt] )
+    
+    sei = ( log(hi.RR) - log(RR) ) / qnorm(.975)
+    
+    return( data.frame( yi = log(RR), vyi = sei^2 ) )
+    
+  } else if ( .type == "raw" ) {
+    
+    sei = ( .hi - .est ) / qnorm(.975)
+    return( data.frame( yi = .est, vyi = sei^2 ) )
+  }
   
-  # same for upper CI limit
-  hi.RR = .hi
-  hi.RR[.sqrt] = sqrt( hi.RR[.sqrt] )
-  
-  sei = ( log(hi.RR) - log(RR) ) / qnorm(.975)
-  
-  return( data.frame( yi = log(RR), vyi = sei^2 ) )
+
 }
 
+
+
+#' Estimate proportion of population effect sizes above or below a threshold
+#'
+#' This is a wrapper for \code{confounded_meta} that estimates, without any 
+#' adjustment for confounding bias, the proportion of effect sizes above or
+#' below a specified threshold. Effect sizes may be of any type (they need not
+#' be relative risks). 
+#' @param .q True effect size that is the threshold for "scientific significance"
+#' @param .yr Pooled point estimate from meta-analysis
+#' @param .vyr Estimated variance of pooled point estimate from meta-analysis
+#' @param .t2 Estimated heterogeneity (tau^2) from meta-analysis
+#' @param .vt2 Estimated variance of tau^2 from meta-analysis
+#' @param CI.level Confidence level as a proportion
+#' @param .tail \code{above} for the proportion of effects above \code{.q}; \code{below} for
+#' the proportion of effects below \code{.q}.
+#' @export
+
+stronger_than = function( .q, .yr, .vyr=NULL, .t2, .vt2=NULL,
+                           CI.level=0.95, .tail ) {
+  
+  # suppress warnings about lack of info for doing sensitivity analysis
+  # since we are not dealing with confounding 
+  cm = suppressWarnings( confounded_meta( .q = .q, .muB = 0, .sigB = 0,
+                                          .yr = .yr, .vyr = .vyr,
+                                          .t2 = .t2, .vt2 = .vt2,
+                                          CI.level = CI.level,
+                                          .tail = .tail ) )
+  
+  # return just the first row (proportion) since the rest are for sensitivity analyses
+  return( cm[1,] ) 
+}
 
 
 

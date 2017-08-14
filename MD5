@@ -1,7 +1,8 @@
-f8325ad9cabb0d1c594ae458329b9d78 *DESCRIPTION
-12901f145d5a1812842d6c698f4db290 *NAMESPACE
-0f9357b464e45f511e76e170e5979141 *R/ConfoundedMeta.R
-8d765f43f4b6023ff387e7fd49333af7 *man/confounded_meta.Rd
-236b426255d7a95a3e59dd9fd54326cd *man/scrape_meta.Rd
+ffb17b333ceb39e2e715126ee9728024 *DESCRIPTION
+e9bc55dbbb9076ade36d2f689000df62 *NAMESPACE
+8ac3770b8dad52af94ebb2b0a45f22b9 *R/ConfoundedMeta.R
+a5a6cc15783a9f525e7f99c18963d82c *man/confounded_meta.Rd
+dabc4af78fd09640758edce6fddcd651 *man/scrape_meta.Rd
 529e947f8f3f44dbbb41ac4525a7e435 *man/sens_plot.Rd
 c9df0ded1bdabbd2634dcb32426a403b *man/sens_table.Rd
+d11670e0eab60f7a021140cb7e9867b4 *man/stronger_than.Rd
